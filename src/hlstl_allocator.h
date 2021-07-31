@@ -22,7 +22,7 @@ public:
     Allocator() = default;
     ~Allocator() = default;
 
-    pointer allocate(size_type n, const void* p = nullptr)
+    static pointer Allocate(size_type n, const void* p = nullptr)
     {
         pointer ret = (T*)(::operator new(sizeof(T) * n));
         if (ret == nullptr)
@@ -32,9 +32,14 @@ public:
         }
         return ret;
     }
-    void deallocate(pointer p)
+    static void DeAllocate(pointer p)
     {
         ::operator delete(p);
+    }
+
+    static void DeAllocate(pointer p, size_t n)
+    {
+        ::operator delete(p, n);
     }
 
 private:
@@ -56,6 +61,20 @@ private:
         return std::max(size_type(1), size_type(UINT_MAX / sizeof(T)));
     }
 };
+
+// template <class T, class Alloc>
+// class SimpleAlloc
+// {
+// public:
+//     static T* Allocate(size_t n)
+//     {
+//         return !n ? nullptr : (T*)Alloc::allocate(n * sizeof(T));
+//     }
+//     static T* Allocate()
+//     {
+//         return (T*)Alloc::allocate(sizeof(T));
+//     }
+// };
 
 } // namespace hl
 

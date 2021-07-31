@@ -7,12 +7,12 @@ using namespace std;
 int main()
 {
     hl::Allocator<int> alloc;
-    int* p = static_cast<int*>(alloc.allocate(1000));
-    hl::construct(p, 1);
+    int* p = static_cast<int*>(alloc.Allocate(1000));
+    hl::Construct(p, 1);
 
     cout << *p << endl;
 
-    hl::destroy(p);
-    alloc.deallocate(p);
+    hl::Destroy(p);
+    alloc.DeAllocate(p);
     return 0;
 }

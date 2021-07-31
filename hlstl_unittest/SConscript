@@ -3,3 +3,4 @@ Env = Env.Clone()
 
 Env.Program('allocator_unittest', source=['allocator_unittest.cc'])
 Env.Program('construct_unittest', source=['construct_unittest.cc'])
+Env.Program('vector_unittest', source=['vector_unittest.cc'])
