@@ -13,3 +13,4 @@ Env.Program('allocator_unittest', source=['allocator_unittest.cc'], LIBS=deplibs
 Env.Program('construct_unittest', source=['construct_unittest.cc'], LIBS=deplibs)
 Env.Program('vector_unittest', source=['vector_unittest.cc'], LIBS=deplibs)
 Env.Program('type_traits_unittest', source=['type_traits_unittest.cc'], LIBS=deplibs)
+Env.Program('iterator_unittest', source=['iterator_unittest.cc'], LIBS=deplibs)
