@@ -1,30 +1,12 @@
+#include "src/hlstl_helper.h"
 #include "src/hlstl_type_traits.h"
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 
-template <typename T1, typename T2>
-struct is_same_type
-{
-    operator bool()
-    {
-        return false;
-    }
-};
-
-template <typename T1>
-struct is_same_type<T1, T1>
-{
-    operator bool()
-    {
-        return true;
-    }
-};
-
 template <typename T>
 struct simpile_type_test
 {
-
     using has_trivial_default_constructor = typename hl::__type_traits<T>::has_trivial_default_constructor;
     using has_trivial_copy_constructor = typename hl::__type_traits<T>::has_trivial_copy_constructor;
     using has_trivial_assignment_operator = typename hl::__type_traits<T>::has_trivial_assignment_operator;
@@ -32,11 +14,11 @@ struct simpile_type_test
     using is_POD_type = typename hl::__type_traits<T>::is_POD_type;
     operator bool()
     {
-        if (is_same_type<has_trivial_default_constructor, hl::__true_type>() &&
-            is_same_type<has_trivial_copy_constructor, hl::__true_type>() &&
-            is_same_type<has_trivial_assignment_operator, hl::__true_type>() &&
-            is_same_type<has_trivial_destructor, hl::__true_type>() &&
-            is_same_type<is_POD_type, hl::__true_type>())
+        if (hl::is_same_type<has_trivial_default_constructor, hl::__true_type>() &&
+            hl::is_same_type<has_trivial_copy_constructor, hl::__true_type>() &&
+            hl::is_same_type<has_trivial_assignment_operator, hl::__true_type>() &&
+            hl::is_same_type<has_trivial_destructor, hl::__true_type>() &&
+            hl::is_same_type<is_POD_type, hl::__true_type>())
             return true;
         else
             return false;
@@ -73,4 +55,3 @@ int main(int argc, char** argv)
     google::ParseCommandLineFlags(&argc, &argv, true);
     return RUN_ALL_TESTS();
 }
-
