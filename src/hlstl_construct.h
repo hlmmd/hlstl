@@ -25,13 +25,13 @@ inline void __Destroy(T* p)
 } // namespace detail
 
 template <typename T, typename... Args>
-inline void Construct(T* p, const Args&... args)
+inline void construct(T* p, const Args&... args)
 {
     detail::__Construct(p, args...);
 }
 
 template <typename T>
-inline void Destroy(T* p)
+inline void destroy(T* p)
 {
     detail::__Destroy(p);
 }

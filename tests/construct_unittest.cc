@@ -8,11 +8,11 @@ int main()
 {
     hl::Allocator<int> alloc;
     int* p = static_cast<int*>(alloc.Allocate(1000));
-    hl::Construct(p, 1);
+    hl::construct(p, 1);
 
     cout << *p << endl;
 
-    hl::Destroy(p);
+    hl::destroy(p);
     alloc.DeAllocate(p);
     return 0;
 }
