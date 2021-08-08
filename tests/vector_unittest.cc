@@ -1,15 +1,23 @@
+#include "src/hlstl_uninitialized.h"
 #include "src/hlstl_vector.h"
-#include <iostream>
+#include <gflags/gflags.h>
+#include <glog/logging.h>
+#include <gtest/gtest.h>
 
-using namespace std;
-
-int main()
+TEST(HLSTL, UNINITIALIZED)
 {
-    hl::vector<int> nums(10);
-	for(auto it = nums.begin(); it!=nums.end(); it++)
-	{
-		std::cout << "xxx" << *it << std::endl;
-	}
+    int xxx[20];
+    for (int i = 0; i < 10; i++)
+        xxx[i] = i;
 
-    return 0;
+    hl::uninitialized_copy<int*, int*>(xxx, xxx + 10, xxx + 10);
+    for (int i = 0; i < 20; i++)
+        LOG(INFO) << xxx[i];
+}
+
+int main(int argc, char** argv)
+{
+    testing::InitGoogleTest(&argc, argv);
+    google::ParseCommandLineFlags(&argc, &argv, true);
+    return RUN_ALL_TESTS();
 }
