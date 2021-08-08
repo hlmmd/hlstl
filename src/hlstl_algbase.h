@@ -6,7 +6,7 @@
 #include <string.h>
 namespace hl
 {
-
+// copy
 template <typename InputIter, typename OutputIter, typename Distance>
 inline OutputIter __copy(InputIter first, InputIter last,
                          OutputIter result, input_iterator_tag, Distance*)
@@ -74,6 +74,28 @@ template <typename InputIter, typename OutputIter>
 inline OutputIter copy(InputIter first, InputIter last, OutputIter result)
 {
     return __copy_aux(first, last, result, __VALUE_TYPE(first));
+}
+
+// fill
+template <typename ForwardIter, typename T>
+inline void fill(ForwardIter first, ForwardIter last, const T& value)
+{
+    ForwardIter cur = first;
+    for (; first != last; ++first)
+        *first = value;
+}
+
+// 特化
+template <>
+inline void fill(unsigned char* first, unsigned char* last, const unsigned char& value)
+{
+    ::memset(first, value, last - first);
+}
+
+template <>
+inline void fill(char* first, char* last, const char& value)
+{
+    ::memset(first, value, last - first);
 }
 
 } // namespace hl

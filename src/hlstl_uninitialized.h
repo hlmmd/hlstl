@@ -48,6 +48,39 @@ uninitialized_copy(InputIter first, InputIter last, ForwardIter result)
 // TODO uninitialized_copy_n
 // what the fuck?
 
+template <typename ForwardIter, typename T>
+inline void __uninitialized_fill_aux(
+    ForwardIter first, ForwardIter last, const T& value, __true_type)
+{
+    fill(first, last, value);
+}
+
+template <typename ForwardIter, typename T>
+inline void __uninitialized_fill_aux(
+    ForwardIter first, ForwardIter last, const T& value, __false_type)
+{
+    ForwardIter cur = first;
+    for (; cur != last; ++cur)
+        construct(&(*cur), value);
+}
+
+template <typename ForwardIter, typename T, typename T2>
+inline void __uninitialized_fill(ForwardIter first,
+                                 ForwardIter last,
+                                 const T& value, T2*)
+{
+    using isPodType = typename __type_traits<T2>::is_POD_type;
+    __uninitialized_fill_aux(first, last, value, isPodType());
+}
+
+template <typename ForwardIter, typename T>
+inline void uninitialized_fill(ForwardIter first,
+                               ForwardIter last,
+                               const T& value)
+{
+    __uninitialized_fill(first, last, value, __VALUE_TYPE(first));
+}
+
 } // namespace hl
 
 #endif
