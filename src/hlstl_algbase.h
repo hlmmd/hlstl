@@ -80,7 +80,6 @@ inline OutputIter copy(InputIter first, InputIter last, OutputIter result)
 template <typename ForwardIter, typename T>
 inline void fill(ForwardIter first, ForwardIter last, const T& value)
 {
-    ForwardIter cur = first;
     for (; first != last; ++first)
         *first = value;
 }
@@ -96,6 +95,29 @@ template <>
 inline void fill(char* first, char* last, const char& value)
 {
     ::memset(first, value, last - first);
+}
+
+// fill_n
+template <typename ForwardIter, typename Size, typename T>
+inline ForwardIter fill_n(ForwardIter first, Size n, const T& value)
+{
+    for (; n > 0; --n, ++first)
+        *first = value;
+    return first;
+}
+
+template <class Size>
+inline unsigned char* fill_n(unsigned char* first, Size n, const unsigned char& value)
+{
+    fill(first, first + n, value);
+    return first + n;
+}
+
+template <class Size>
+inline char* fill_n(char* first, Size n, const char& value)
+{
+    fill(first, first + n, value);
+    return first + n;
 }
 
 } // namespace hl

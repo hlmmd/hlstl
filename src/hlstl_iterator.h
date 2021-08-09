@@ -94,7 +94,7 @@ public:
     insert_iterator<Container>& operator=(const typename Container::value_type& value)
     {
         iter_ = pContainer_->insert(iter_, value);
-        ++iter;
+        ++iter_;
         return *this;
     }
     insert_iterator<Container>& operator*() { return *this; }
@@ -207,7 +207,7 @@ public:
     reverse_iterator() {}
     explicit reverse_iterator(Iterator iter) : current_(iter){};
     reverse_iterator(const Self& it) : current_(it.current_) {}
-    reverse_iterator(const Self& it) : current_(std::move(it.current_)) {}
+    // reverse_iterator(const Self&& it) : current_(std::move(it.current_)) {}
 
     // 还有这种操作!
     template <class Iter>
