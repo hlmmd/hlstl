@@ -2,6 +2,7 @@
 #define HLSTL_VECTOR_H
 
 #include "hlstl_allocator.h"
+#include "hlstl_iterator.h"
 
 namespace hl
 {
@@ -36,10 +37,12 @@ protected:
         {
         }
 
-        // VectorBase(size_t n, const Alloc&)
-        // {
-        //     //start_ =
-        // }
+        VectorBase(size_t n, const Alloc&)
+        {
+            start_ = this->Allocate(n);
+            finish_ = start_;
+            end_of_storage_ = start_ + n;
+        }
 
         // friend class vector;
         // protected:
@@ -71,22 +74,30 @@ public:
     using iterator = value_type*;
     using const_iterator = const value_type*;
 
+    using const_reverse_iterator = reverse_iterator<const_iterator>;
+    // using reverse_iterator = reverse_iterator<iterator>;
     using allocator_type = typename VectorBase::allocator_type;
     allocator_type GetAllocator() const { return allocator_type::GetAllocator(); }
     //Vector(const allocator_type& alloc = GetAllocator()) : base_(alloc) {}
     vector() {}
 
-    vector(size_type n)
+    vector(size_type n) : base_(n, allocator_type())
     {
-       // base_.finish_ = uninitialized_fill_n(base_.start_, n, size_type());
+        base_.finish_ = uninitialized_fill_n(base_.start_, n, value_type());
     }
 
-    vector(size_type n, const_reference value) {}
+    vector(size_type n, const_reference value) : base_(n, allocator_type())
+    {
+        base_.finish_ = uninitialized_fill_n(base_.start_, n, value);
+    }
 
     iterator begin() { return base_.start_; }
-    const_iterator cbegin() { return base_.start_; }
+    const_iterator cbegin() const { return base_.start_; }
     iterator end() { return base_.finish_; }
-    const_iterator cend() { return base_.finish_; }
+    const_iterator cend() const { return base_.finish_; }
+
+    reference operator[](size_t n) { return *(begin() + n); }
+    const_reference operator[](size_t n) const { return *(begin() + n); }
 
     // TODO rbegin ...
 
