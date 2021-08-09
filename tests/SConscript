@@ -1,6 +1,7 @@
 Import ('Env')
 Env = Env.Clone()
 
+# Env.Append(CCFLAGS = ['-g'])
 
 deplibs = [
     'glog',
