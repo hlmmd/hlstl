@@ -103,16 +103,17 @@ inline ForwardIter
 __uninitialized_fill_n(ForwardIter first, Size n, const T& value, T2*)
 {
     using isPodType = typename __type_traits<T2>::is_POD_type;
-    __uninitialized_fill_n_aux(first, n, value, isPodType());
+    return __uninitialized_fill_n_aux(first, n, value, isPodType());
 }
 
 template <typename ForwardIter, typename Size, typename T>
 inline ForwardIter
 uninitialized_fill_n(ForwardIter first, Size n, const T& value)
 {
-    __uninitialized_fill_n(first, n, value, __VALUE_TYPE(first));
+    return __uninitialized_fill_n(first, n, value, __VALUE_TYPE(first));
 }
 
 } // namespace hl
 
 #endif
+

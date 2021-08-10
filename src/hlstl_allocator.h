@@ -22,7 +22,7 @@ public:
     Allocator() = default;
     ~Allocator() = default;
 
-    static pointer Allocate(size_type n, const void* p = nullptr)
+    static pointer allocate(size_type n, const void* p = nullptr)
     {
         pointer ret = (T*)(::operator new(sizeof(T) * n));
         if (ret == nullptr)
@@ -32,12 +32,12 @@ public:
         }
         return ret;
     }
-    static void DeAllocate(pointer p)
+    static void deallocate(pointer p)
     {
         ::operator delete(p);
     }
 
-    static void DeAllocate(pointer p, size_t n)
+    static void deallocate(pointer p, size_t n)
     {
         ::operator delete(p, n);
     }
@@ -79,3 +79,4 @@ private:
 } // namespace hl
 
 #endif
+
