@@ -75,6 +75,8 @@ public:
     using BaseType::end_of_storage_;
     using BaseType::finish_;
     using BaseType::start_;
+
+    // 构造函数
     vector(const allocator_type& alloc = allocator_type()) : BaseType(alloc) {}
 
     vector(size_type n) : BaseType(n, allocator_type())
@@ -88,6 +90,21 @@ public:
         finish_ = uninitialized_fill_n(start_, n, value);
     }
 
+    // 拷贝构造
+    vector(const vector<T, Alloc>& another) : BaseType(another.size(), another.get_allocator())
+    {
+        finish_ = uninitialized_copy(another.begin(), another.end(), start_);
+    }
+
+    ~vector() { destroy(start_, finish_); }
+
+    // TODO 由迭代器[first,last)构造
+    // template <class InputerIter>
+    // vector(InputerIter first, InputerIter last,
+    //        const allocator_type& alloc = allocator_type()) : BaseType(alloc)
+    // {
+    // }
+
     iterator begin() { return start_; }
     const_iterator cbegin() const { return begin(); }
     iterator end() { return finish_; }
@@ -95,6 +112,10 @@ public:
 
     reference operator[](size_t n) { return *(begin() + n); }
     const_reference operator[](size_t n) const { return *(begin() + n); }
+
+    // TODO 异常处理
+    reference at(size_t n) { return (*this)[n]; }
+    const_reference at(size_t n) const { return (*this)[n]; }
 
     // TODO rbegin ...
 
