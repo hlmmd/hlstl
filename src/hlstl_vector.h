@@ -110,6 +110,15 @@ public:
     iterator end() { return finish_; }
     const_iterator cend() const { return end(); }
 
+    reverse_iter rbegin() { return reverse_iter(end()); }
+    const_reverse_iter crbegin() const { return rbegin(); }
+    reverse_iter rend() { return reverse_iter(begin()); }
+    const_reverse_iter crend() const { return rend(); }
+
+    size_type size() { return finish_ - start_; }
+    size_type max_size() { return size_type(-1) / sizeof(value_type); }
+    size_type capacity() { return end_of_storage_ - start_; }
+
     reference operator[](size_t n) { return *(begin() + n); }
     const_reference operator[](size_t n) const { return *(begin() + n); }
 
@@ -117,11 +126,40 @@ public:
     reference at(size_t n) { return (*this)[n]; }
     const_reference at(size_t n) const { return (*this)[n]; }
 
-    // TODO rbegin ...
+    vector<T, Alloc>& operator=(const vector<T, Alloc>& another) { return *this; }
+    void reserve(size_type n) {}
+    void assign(size_type n, const_reference val) {}
+    template <typename InputIterator>
+    void assign(InputIterator first, InputIterator last) {}
 
-    size_type size() { return finish_ - start_; }
-    size_type max_size() { return size_type(-1) / sizeof(value_type); }
-    size_type capacity() { return end_of_storage_ - start_; }
+    reference front() { return *begin(); }
+    const_reference front() const { return front(); }
+    reference back() { return *(end() - 1); }
+    const_reference back() const { return back(); }
+
+    void push_back(const T& value) {}
+    void push_back(const T&& value) {}
+
+    // void emplace_back() {}
+    // void shrink_to_fit(){}
+
+    void swap(vector<T, Alloc>& another) {}
+
+    iterator insert(iterator position, const T& value) {}
+    iterator insert(iterator position, size_type n, const T& value) {}
+    template <typename InputIterator>
+    iterator insert(iterator position, InputIterator first,
+                    InputIterator last) {}
+
+    // iterator emplace(){}
+
+    void pop_back() {}
+    iterator erase(iterator position) {}
+    iterator earse(iterator first, iterator last) {}
+
+    void resize(size_type new_size, const T& value) {}
+    void resize(size_type new_size) {}
+    void clear() {}
 
 protected:
 };
@@ -129,4 +167,3 @@ protected:
 } // namespace hl
 
 #endif
-
