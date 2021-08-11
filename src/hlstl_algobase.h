@@ -6,6 +6,15 @@
 #include <string.h>
 namespace hl
 {
+
+template <class T>
+inline void swap(T& lhs, T& rhs)
+{
+    T tmp = lhs;
+    lhs = rhs;
+    rhs = tmp;
+}
+
 // copy
 template <typename InputIter, typename OutputIter, typename Distance>
 inline OutputIter __copy(InputIter first, InputIter last,
