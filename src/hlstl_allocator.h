@@ -39,7 +39,8 @@ public:
 
     static void deallocate(pointer p, size_t n)
     {
-        ::operator delete(p, n);
+        // ::operator delete(p, n);
+        ::operator delete(p);
     }
 
 private:
@@ -79,4 +80,5 @@ private:
 } // namespace hl
 
 #endif
+
 

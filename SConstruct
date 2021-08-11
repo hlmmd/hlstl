@@ -2,6 +2,7 @@
 import os
 import sys
 Env = Environment()
+#Env = Environment(CXXFLAGS="-std=c++11")
 
 currentPath = os.path.abspath('.')
 

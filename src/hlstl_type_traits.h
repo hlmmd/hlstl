@@ -190,5 +190,67 @@ struct __type_traits<T*>
     using is_POD_type = __true_type;
 };
 
+// is_integer
+template <class _Tp>
+struct __is_integer
+{
+    typedef __false_type is_integer;
+};
+
+template <>
+struct __is_integer<bool>
+{
+    typedef __true_type is_integer;
+};
+
+template <>
+struct __is_integer<short>
+{
+    typedef __true_type is_integer;
+};
+
+template <>
+struct __is_integer<unsigned short>
+{
+    typedef __true_type is_integer;
+};
+
+template <>
+struct __is_integer<int>
+{
+    typedef __true_type is_integer;
+};
+
+template <>
+struct __is_integer<unsigned int>
+{
+    typedef __true_type is_integer;
+};
+
+template <>
+struct __is_integer<long>
+{
+    typedef __true_type is_integer;
+};
+
+template <>
+struct __is_integer<unsigned long>
+{
+    typedef __true_type is_integer;
+};
+
+template <>
+struct __is_integer<long long>
+{
+    typedef __true_type is_integer;
+};
+
+template <>
+struct __is_integer<unsigned long long>
+{
+    typedef __true_type is_integer;
+};
+
 } // namespace hl
 #endif
+
