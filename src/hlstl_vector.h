@@ -4,6 +4,7 @@
 #include "hlstl_alloc.h"
 #include "hlstl_allocator.h"
 #include "hlstl_iterator.h"
+#include "hlstl_type_traits.h"
 
 namespace hl
 {
@@ -98,13 +99,48 @@ public:
 
     ~vector() { destroy(start_, finish_); }
 
-    // TODO 由迭代器[first,last)构造
-    // template <class InputerIter>
-    // vector(InputerIter first, InputerIter last,
-    //        const allocator_type& alloc = allocator_type()) : BaseType(alloc)
-    // {
-    // }
+    // 由迭代器[first,last)构造
+    // 这里要判断 InputIterator 是否是一个整数， 与vector(size, value)做区分。
+    template <typename InputIterator>
+    vector(InputIterator first, InputIterator last,
+           const allocator_type& alloc = allocator_type()) : BaseType(alloc)
+    {
+        using is_interger = typename __is_integer<InputIterator>::is_integer;
+        initialize_with_iterator(first, last, is_interger());
+    }
 
+protected:
+    template <typename Integer>
+    void initialize_with_iterator(Integer n, Integer value, __true_type)
+    {
+        start_ = allocate(n);
+        finish_ = uninitialized_fill_n(start_, n, value);
+        end_of_storage_ = start_ + n;
+    }
+
+    template <typename InputIterator>
+    void initialize_with_iterator(InputIterator first, InputIterator last, __false_type)
+    {
+        range_initialize(first, last, __ITERATOR_CATEGORY(first));
+    }
+
+    template <typename InputIterator>
+    void range_initialize(InputIterator first, InputIterator last, input_iterator_tag)
+    {
+        for (; first != last; ++first)
+            push_back(*first);
+    }
+
+    template <typename ForwardIter>
+    void range_initialize(ForwardIter first, ForwardIter last, forward_iterator_tag)
+    {
+        size_type n = distance(first, last);
+        start_ = allocate(n);
+        finish_ = uninitialized_copy(first, last, start_);
+        end_of_storage_ = start_ + n;
+    }
+
+public:
     iterator begin() { return start_; }
     const_iterator cbegin() const { return begin(); }
     iterator end() { return finish_; }
@@ -126,16 +162,33 @@ public:
     reference at(size_t n) { return (*this)[n]; }
     const_reference at(size_t n) const { return (*this)[n]; }
 
-    vector<T, Alloc>& operator=(const vector<T, Alloc>& another) { return *this; }
-    void reserve(size_type n) {}
-    void assign(size_type n, const_reference val) {}
-    template <typename InputIterator>
-    void assign(InputIterator first, InputIterator last) {}
-
     reference front() { return *begin(); }
     const_reference front() const { return front(); }
     reference back() { return *(end() - 1); }
     const_reference back() const { return back(); }
+
+    vector<T, Alloc>& operator=(const vector<T, Alloc>& another) { return *this; }
+
+    // 只有当 reserve 的size > capacity的时候调用才有效
+    void reserve(size_type n)
+    {
+        if (n > capacity())
+        {
+            const size_type old_size = size();
+            // 申请更大的空间，将原对象copy过来
+            iterator tmp = allocate_and_copy(n, start_, finish_);
+            // 释放原对象
+            destroy(start_, finish_);
+            // 释放原空间
+            deallocate(start_, end_of_storage_ - start_);
+            start_ = tmp;
+            finish_ = tmp + old_size;
+            end_of_storage_ = start_ + n;
+        }
+    }
+    void assign(size_type n, const_reference val) {}
+    template <typename InputIterator>
+    void assign(InputIterator first, InputIterator last) {}
 
     void push_back(const T& value) {}
     void push_back(const T&& value) {}
@@ -162,8 +215,17 @@ public:
     void clear() {}
 
 protected:
+    template <typename ForwardIterator>
+    iterator allocate_and_copy(size_type n, ForwardIterator first, ForwardIterator last)
+    {
+        // TODO exception
+        iterator result = allocate(n);
+        uninitialized_copy(first, last, result);
+        return result;
+    }
 };
 
 } // namespace hl
 
 #endif
+

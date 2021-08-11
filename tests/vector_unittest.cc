@@ -24,7 +24,8 @@ TEST(HLSTL, VECTOR_INT)
         hl::vector<int> nums(2);
     }
     {
-        hl::vector<int> nums(2, 2);
+        hl::vector<int> nums2(2, 2);
+        hl::vector<int> nums(nums2.begin(), nums2.end());
         LOG(INFO) << nums.size();
         for (int i = 0; i < nums.size(); i++)
             LOG(INFO) << nums[i];
