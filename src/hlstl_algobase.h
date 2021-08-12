@@ -15,6 +15,31 @@ inline void swap(T& lhs, T& rhs)
     rhs = tmp;
 }
 
+// min max
+template <typename T>
+inline const T& max(const T& lhs, const T& rhs)
+{
+    return lhs < rhs ? rhs : lhs;
+}
+
+template <typename T, typename Compare>
+inline const T& max(const T& lhs, const T& rhs, const Compare& compare)
+{
+    return compare(lhs, rhs) ? rhs : lhs;
+}
+
+template <typename T>
+inline const T& min(const T& lhs, const T& rhs)
+{
+    return lhs < rhs ? lhs : rhs;
+}
+
+template <typename T, typename Compare>
+inline const T& min(const T& lhs, const T& rhs, const Compare& compare)
+{
+    return compare(lhs, rhs) ? lhs : rhs;
+}
+
 // copy
 template <typename InputIter, typename OutputIter, typename Distance>
 inline OutputIter __copy(InputIter first, InputIter last,
@@ -83,6 +108,37 @@ template <typename InputIter, typename OutputIter>
 inline OutputIter copy(InputIter first, InputIter last, OutputIter result)
 {
     return __copy_aux(first, last, result, __VALUE_TYPE(first));
+}
+
+// copy_backward
+
+template <typename InputIter, typename OutputIter>
+inline OutputIter __copy_backward_aux2(InputIter first, InputIter last, OutputIter result)
+{
+    for (; last != first; --last, --result)
+    {
+        *(result-1) = *(last - 1);
+    }
+    return result;
+}
+
+template <typename T>
+inline T* __copy_backward_aux(const T* first, const T* last, const T* result)
+{
+    ::memmove(result - (last - first), first, (last - first));
+    return result - (last - first);
+}
+
+template <typename InputIter, typename OutputIter, typename T>
+inline OutputIter __copy_backward_aux(InputIter first, InputIter last, OutputIter result, T*)
+{
+    return __copy_backward_aux2(first, last, result);
+}
+
+template <typename InputIter, typename OutputIter>
+inline OutputIter copy_backward(InputIter first, InputIter last, OutputIter result)
+{
+    return __copy_backward_aux(first, last, result, __VALUE_TYPE(first));
 }
 
 // fill
