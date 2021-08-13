@@ -5,6 +5,7 @@
 #include "hlstl_allocator.h"
 #include "hlstl_iterator.h"
 #include "hlstl_type_traits.h"
+#include "hlstl_uninitialized.h"
 
 namespace hl
 {
@@ -308,7 +309,7 @@ public:
             insert_aux(end(), value);
     }
     // TODO && version
-    void push_back(const T&& value) {}
+    // void push_back(const T&& value) {}
 
     // void emplace_back() {}
     // void shrink_to_fit(){}
@@ -341,9 +342,82 @@ public:
                     InputIterator last)
     {
         using is_integer = typename __is_integer<InputIterator>::is_integer;
-        insert_aux(position, first, last, is_integer());
+        insert_dispatch(position, first, last, is_integer());
     }
 
+protected:
+    template <typename Integer>
+    void insert_dispatch(iterator position, Integer n, Integer value, __true_type)
+    {
+        fill_insert(position, (size_type)n, (T)value);
+    }
+
+    template <typename InputIterator>
+    void insert_dispatch(iterator position, InputIterator first, InputIterator last, __false_type)
+    {
+        range_insert(position, first, last, __ITERATOR_CATEGORY(first));
+    }
+
+    template <typename InputIterator>
+    void range_insert(iterator position, InputIterator first, InputIterator last, input_iterator_tag)
+    {
+        for (; first != last; ++first)
+        {
+            position = insert(position, *first);
+            ++position;
+        }
+    }
+
+    template <typename ForwardIterator>
+    void range_insert(iterator position, ForwardIterator first, ForwardIterator last, forward_iterator_tag)
+    {
+        if (first != last)
+        {
+            size_type n = distance(first, last);
+            if (size_type(end_of_storage_ - finish_) >= n) // 剩余空间大于n
+            {
+                // position之后的元素个数大于插入元素个数
+                const size_type elems_after_positon = finish_ - position;
+                iterator old_finish = finish_;
+                if (elems_after_positon > n) // 插入点之后的元素个数大于新增元素个数
+                {
+                    // 把最后的n个元素往后copy
+                    uninitialized_copy(finish_ - n, finish_, finish_);
+                    finish_ += n;
+                    copy_backward(position, old_finish - n, old_finish);
+                    copy(first, last, position);
+                }
+                else
+                {
+                    ForwardIterator mid = first;
+                    advance(mid, elems_after_positon);
+                    // 先copy插入数据的后半段
+                    uninitialized_copy(mid, last, finish_);
+                    // 将position 到 finish_的数据移到末尾
+                    uninitialized_copy(position, finish_, n + position);
+                    finish_ += n;
+                    copy(first, mid, position);
+                }
+            }
+            else
+            {
+                const size_type old_size = size();
+                const size_type new_size = old_size + hl::max(old_size, n);
+                iterator new_start = allocate(new_size);
+                iterator new_finish = new_start;
+                new_finish = uninitialized_copy(start_, position, new_finish);
+                new_finish = uninitialized_copy(first, last, new_finish);
+                new_finish = uninitialized_copy(position, finish_, new_finish);
+                destroy(start_, finish_);
+                deallocate(start_, end_of_storage_ - start_);
+                start_ = new_start;
+                finish_ = new_finish;
+                end_of_storage_ = new_size + new_size;
+            }
+        }
+    }
+
+public:
     // iterator emplace(){}
 
     void pop_back()
@@ -393,15 +467,87 @@ protected:
         return result;
     }
 
-    iterator insert_aux(iterator position, const T& value)
+    void insert_aux(iterator position, const T& value)
     {
+        if (finish_ != end_of_storage_)
+        {
+            // 这里position一定不会是finish_ 除非有bug
+            construct(finish_, *(finish_ - 1));
+            ++finish_;
+            // 从右往左依次copy每个元素
+            copy_backward(position, finish_ - 2, finish_ - 1);
+            *position = value;
+        }
+        else
+        {
+            // 这里可以不考虑size()*2溢出，因为目前的硬件达不到那么大?
+            size_type old_size = size();
+            size_type new_size = (old_size == 0) ? 1 : old_size * 2;
+            iterator new_start = allocate(new_size);
+            iterator new_finish = new_start;
+
+            new_finish = uninitialized_copy(start_, position, new_finish);
+            construct(new_finish, value);
+            ++new_finish;
+            new_finish = uninitialized_copy(position, finish_, new_finish);
+
+            destroy(start_, finish_);
+            deallocate(start_, old_size);
+
+            start_ = new_start;
+            finish_ = new_finish;
+            end_of_storage_ = new_start + new_size;
+        }
     }
 
     void fill_insert(iterator position, size_type n, const T& value)
     {
+        if (n > 0)
+        {
+            size_type remain = end_of_storage_ - finish_;
+
+            if (remain >= n)
+            {
+                // position之后的元素个数大于插入元素个数
+                const size_type elems_after_positon = finish_ - position;
+                iterator old_finish = finish_;
+                if (elems_after_positon > n) // 插入点之后的元素个数大于新增元素个数
+                {
+                    // 把最后的n个元素往后copy
+                    uninitialized_copy(finish_ - n, finish_, finish_);
+                    finish_ += n;
+                    copy_backward(position, old_finish - n, old_finish);
+                    fill(position, position + n, value);
+                }
+                else
+                {
+                    uninitialized_fill(finish_, n + position, value);
+                    uninitialized_copy(position, finish_, n + position);
+                    fill(position, finish_, value);
+                    finish_ += n;
+                }
+            }
+            else // 需要重新申请空间
+            {
+                const size_type old_size = size();
+                const size_type len = old_size + max(old_size, n);
+                iterator new_start = allocate(len);
+                iterator new_finish = new_start;
+                new_finish = uninitialized_copy(start_, position, new_start);
+                new_finish = uninitialized_fill_n(new_finish, n, value);
+                new_finish = uninitialized_copy(position, finish_, new_finish);
+
+                destroy(start_, finish_);
+                deallocate(start_, end_of_storage_ - start_);
+                start_ = new_start;
+                finish_ = new_finish;
+                end_of_storage_ = new_start + len;
+            }
+        }
     }
 };
 
 } // namespace hl
 
 #endif
+
