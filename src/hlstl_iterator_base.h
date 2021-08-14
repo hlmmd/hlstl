@@ -112,7 +112,7 @@ __iterator_category(const Iterator&)
 
 template <typename Iterator>
 inline typename iterator_traits<Iterator>::difference_type*
-__difference_type(const Iterator&)
+__distance_type(const Iterator&)
 {
     return static_cast<typename iterator_traits<Iterator>::difference_type*>(0);
 }
@@ -133,9 +133,9 @@ iterator_category(const Iterator& it)
 
 template <typename Iterator>
 inline typename iterator_traits<Iterator>::difference_type*
-difference_type(const Iterator& it)
+distance_type(const Iterator& it)
 {
-    return __difference_type(it);
+    return __distance_type(it);
 }
 
 template <typename Iterator>
@@ -215,3 +215,4 @@ inline void advance(Iterator& it, Distance n)
 } // namespace hl
 
 #endif
+
