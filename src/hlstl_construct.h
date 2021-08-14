@@ -22,7 +22,6 @@ inline void __construct(T* p, const Args&... args)
 template <typename T>
 inline void __destroy(T* p)
 {
-    // TODO: POD type
     p->~T();
 }
 
@@ -30,7 +29,7 @@ template <typename ForwardIterator>
 inline void __destroy_aux(ForwardIterator first, ForwardIterator last, __false_type)
 {
     for (; first != last; ++first)
-        destory(&*first);
+        __destroy(&*first);
 }
 
 template <typename ForwardIterator>
@@ -78,3 +77,4 @@ inline void destroy(ForwardIterator first, ForwardIterator last)
 } // namespace hl
 
 #endif
+

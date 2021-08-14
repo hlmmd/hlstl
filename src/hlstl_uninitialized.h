@@ -1,10 +1,10 @@
 #ifndef HLSTL_UNINITIALIZED_H
 #define HLSTL_UNINITIALIZED_H
-
 #include "hlstl_algobase.h"
 #include "hlstl_construct.h"
 #include "hlstl_iterator_base.h"
 #include "hlstl_type_traits.h"
+
 namespace hl
 {
 
@@ -111,6 +111,23 @@ inline ForwardIter
 uninitialized_fill_n(ForwardIter first, Size n, const T& value)
 {
     return __uninitialized_fill_n(first, n, value, __VALUE_TYPE(first));
+}
+
+template <typename ForwardIter, typename Size, typename T>
+inline ForwardIter
+__uninitialized_fill_n(ForwardIter first, Size n, T* ptr = nullptr)
+{
+    ForwardIter cur = first;
+    for (; n > 0; --n, ++cur)
+        construct(&(*cur));
+    return cur;
+}
+
+template <typename ForwardIter, typename Size, typename T>
+inline ForwardIter
+uninitialized_fill_n(ForwardIter first, Size n, T* ptr = nullptr)
+{
+    return __uninitialized_fill_n(first, n, ptr);
 }
 
 } // namespace hl

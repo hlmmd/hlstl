@@ -84,7 +84,7 @@ public:
 
     vector(size_type n) : BaseType(n, allocator_type())
     {
-        finish_ = uninitialized_fill_n(start_, n, value_type());
+        finish_ = uninitialized_fill_n(start_, n, (pointer) nullptr);
     }
 
     vector(size_type n, const_reference value,
