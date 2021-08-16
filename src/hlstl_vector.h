@@ -6,6 +6,7 @@
 #include "hlstl_iterator.h"
 #include "hlstl_type_traits.h"
 #include "hlstl_uninitialized.h"
+#include <initializer_list>
 
 namespace hl
 {
@@ -99,6 +100,12 @@ public:
         finish_ = uninitialized_copy(another.begin(), another.end(), start_);
     }
 
+    // initializer_list 构造
+    vector(std::initializer_list<value_type> l, const allocator_type& alloc = allocator_type()) : BaseType(alloc)
+    {
+        range_initialize(l.begin(), l.end(), random_access_iterator_tag());
+    }
+
     ~vector() { destroy(start_, finish_); }
 
     // 由迭代器[first,last)构造
@@ -172,6 +179,12 @@ public:
     const_reference front() const { return front(); }
     reference back() { return *(end() - 1); }
     const_reference back() const { return back(); }
+
+    vector<T, Alloc>& operator=(std::initializer_list<value_type> l)
+    {
+        assign_aux(l.begin(), l.end(), random_access_iterator_tag());
+        return *this;
+    }
 
     vector<T, Alloc>& operator=(const vector<T, Alloc>& another)
     {
