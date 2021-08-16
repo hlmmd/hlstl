@@ -40,13 +40,14 @@ inline const T& min(const T& lhs, const T& rhs, const Compare& compare)
     return compare(lhs, rhs) ? lhs : rhs;
 }
 
-// copy
+// copy TODO： move 版本
 template <typename InputIter, typename OutputIter, typename Distance>
 inline OutputIter __copy(InputIter first, InputIter last,
                          OutputIter result, input_iterator_tag, Distance*)
 {
     for (; first != last; ++result, ++first)
     {
+        // *result = std::move(*first);
         *result = *first;
     }
     return result;
@@ -117,7 +118,7 @@ inline OutputIter __copy_backward_aux2(InputIter first, InputIter last, OutputIt
 {
     for (; last != first; --last, --result)
     {
-        *(result-1) = *(last - 1);
+        *(result - 1) = *(last - 1);
     }
     return result;
 }
@@ -147,6 +148,13 @@ inline void fill(ForwardIter first, ForwardIter last, const T& value)
 {
     for (; first != last; ++first)
         *first = value;
+}
+
+template <typename ForwardIter, typename T>
+inline void fill(ForwardIter first, ForwardIter last, T* ptr = nullptr)
+{
+    for (; first != last; ++first)
+        *first = T();
 }
 
 // 特化

@@ -13,10 +13,10 @@ namespace hl
 namespace detail
 {
 template <typename T, typename... Args>
-inline void __construct(T* p, const Args&... args)
+inline void __construct(T* p, Args&&... args)
 {
     // std::cout << sizeof...(args) << std::endl;
-    new (p) T(args...);
+    new (p) T(std::forward<Args>(args)...);
 }
 
 template <typename T>
@@ -56,9 +56,9 @@ inline void __destory_iterator(double*, double*) {}
 } // namespace detail
 
 template <typename T, typename... Args>
-inline void construct(T* p, const Args&... args)
+inline void construct(T* p, Args&&... args)
 {
-    detail::__construct(p, args...);
+    detail::__construct(p, std::forward<Args>(args)...);
 }
 
 template <typename T>
@@ -77,4 +77,3 @@ inline void destroy(ForwardIterator first, ForwardIterator last)
 } // namespace hl
 
 #endif
-
