@@ -344,7 +344,19 @@ public:
             insert_aux(end(), std::forward<T>(value));
     }
 
-    // void emplace_back() {}
+    template <typename... Args>
+    void emplace_back(Args&&... args)
+    {
+        if (finish_ != end_of_storage_)
+        {
+            construct(finish_, std::forward<Args>(args)...);
+            ++finish_;
+        }
+        else
+        {
+            insert_aux(end(), std::forward<Args>(args)...);
+        }
+    }
     void shrink_to_fit()
     {
         if (size() < capacity())
@@ -554,6 +566,38 @@ protected:
         }
     }
 
+    template <typename... Args>
+    void insert_aux(iterator position, Args&&... args)
+    {
+        if (finish_ != end_of_storage_)
+        {
+            ++finish_;
+            // 从右往左依次copy每个元素 should be move copy
+            copy_backward(position, finish_ - 1, finish_);
+            construct(position, std::forward<Args>(args)...);
+        }
+        else
+        {
+            // 这里可以不考虑size()*2溢出，因为目前的硬件达不到那么大?
+            size_type old_size = size();
+            size_type new_size = (old_size == 0) ? 1 : old_size * 2;
+            iterator new_start = allocate(new_size);
+            iterator new_finish = new_start;
+
+            new_finish = uninitialized_copy(start_, position, new_finish);
+            construct(new_finish, std::forward<Args>(args)...);
+            ++new_finish;
+            new_finish = uninitialized_copy(position, finish_, new_finish);
+
+            destroy(start_, finish_);
+            deallocate(start_, old_size);
+
+            start_ = new_start;
+            finish_ = new_finish;
+            end_of_storage_ = new_start + new_size;
+        }
+    }
+
     void fill_insert(iterator position, size_type n, const T& value)
     {
         if (n > 0)
@@ -650,3 +694,4 @@ protected:
 } // namespace hl
 
 #endif
+

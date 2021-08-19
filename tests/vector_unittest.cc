@@ -89,6 +89,8 @@ public:
         construct_moveassign_count++;
         if (this == &another)
             return *this;
+        if (p_)
+            delete p_;
         p_ = another.p_;
         size_ = another.size_;
         another.p_ = nullptr;
@@ -211,7 +213,22 @@ TEST(HLSTL, INSERT)
     DebugHelper(v);
     v.resize(2);
     DebugHelper(v);
+    v.emplace_back("abcd");
+    DebugHelper(v);
 }
+
+TEST(HLSTL, ITERATOR)
+{
+    vector<int> v = {1, 3, 5, 7, 2, 1, 9, 9, 9};
+    for (auto it = v.begin(); it != v.end(); ++it)
+        LOG(INFO) << *it;
+    for (auto it = v.rbegin(); it != v.rend(); ++it)
+        LOG(INFO) << *it;
+
+    LOG(INFO) << "back " << v.back();
+    LOG(INFO) << "front " << v.front();
+}
+
 void my_exit(void)
 {
     LOG(INFO) << "construct_count " << construct_count;
@@ -230,3 +247,4 @@ int main(int argc, char** argv)
     ::atexit(my_exit);
     return rtn;
 }
+

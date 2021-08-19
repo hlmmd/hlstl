@@ -47,8 +47,8 @@ inline OutputIter __copy(InputIter first, InputIter last,
 {
     for (; first != last; ++result, ++first)
     {
-        // *result = std::move(*first);
-        *result = *first;
+        *result = std::move(*first);
+        // *result = *first;
     }
     return result;
 }
@@ -118,7 +118,8 @@ inline OutputIter __copy_backward_aux2(InputIter first, InputIter last, OutputIt
 {
     for (; last != first; --last, --result)
     {
-        *(result - 1) = *(last - 1);
+        *(result - 1) = std::move(*(last - 1));
+        // *(result - 1) = *(last - 1);
     }
     return result;
 }
